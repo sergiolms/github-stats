@@ -1,4 +1,4 @@
-import { BuildDetailTpl } from "./tag_detail.js";
+import { BuildDetailTpl, BuildAssetListTpl } from "./tag_detail.js";
 import { GitHubApi } from "./github.js";
 
 const _ = (query, target = document) => {
@@ -24,7 +24,7 @@ export const DoTheThing = async () => {
       [GitHubApi.FetchAllReleases, nicePrintReleases],
   ]).forEach(([req, resp]) =>{
     try {
-    req(userName, repoName).then(resp)
+      req(userName, repoName).then(resp)
     } catch(e){
       printErr(e)
     }
@@ -43,13 +43,9 @@ const getParamsFromURL = () => {
 }
 
 const nicePrintLatestRelease = ( lastRelease ) => {
-  _("#releases").innerHTML += BuildDetailTpl(
+  _("#lastRelease").innerHTML += BuildDetailTpl(
     `Latest release: <span>${lastRelease.tag_name}</span> - Downloads: ${lastRelease.assets.reduce((acc, asset)=> acc + asset.download_count, 0)}`, 
-    `<ul>${
-      lastRelease.assets.map(element => {
-        return `<li>${element.name} - ${element.download_count}</li>`;
-      }).join('')
-    }</ul>`
+    BuildAssetListTpl(lastRelease.assets)
   )
 }
 
@@ -58,11 +54,7 @@ const nicePrintReleases = ( allReleases ) => {
     const r = allReleases[i];
     _("#releases").innerHTML += BuildDetailTpl(
       `<span>${r.tag_name}</span> - Downloads: ${r.assets.reduce((acc, asset)=> acc + asset.download_count, 0)}`, 
-      `<ul>${
-        r.assets.map(element => {
-          return `<li>${element.name} - ${element.download_count}</li>`;
-        }).join('')
-      }</ul>`
+      BuildAssetListTpl(r.assets)
     )
   }
 
@@ -71,11 +63,25 @@ const nicePrintReleases = ( allReleases ) => {
     downloads: r.assets.reduce((acc, asset) => acc + asset.download_count, 0)
   })).sort((a, b) => b.downloads - a.downloads)[0]
 
+  const mostDownloadedAsset = allReleases.reduce((mostDownloaded, release)=>{
+    release.assets.forEach( asset => {
+      if (mostDownloaded.downloads < asset.download_count) {
+        mostDownloaded = {
+          name: asset.name,
+          downloads: asset.download_count,
+          version: release.tag_name
+        };
+      }
+    });
+
+    return mostDownloaded;
+  }, {downloads: 0, version: null, name: null})
+
   _("#allTime").innerHTML=`
-      Total downloads: ${allReleases.reduce((acc, release) => {
+      <span>Total downloads:</span> ${allReleases.reduce((acc, release) => {
         return acc + release.assets.reduce((acc2, asset) => acc2 + asset.download_count, 0);
       }, 0)}<br/>
-      Most downloaded version: ${mostDownloadedVersion.tag} (${mostDownloadedVersion.downloads})<br/>
-      Most downloaded asset: // TODO<br/>
+      <span>Most downloaded version:</span> ${mostDownloadedVersion.tag} (${mostDownloadedVersion.downloads})<br/>
+      <span>Most downloaded asset:</span> ${mostDownloadedAsset.name} - ${mostDownloadedAsset.downloads} (${mostDownloadedAsset.version})<br/>
   `;
 }

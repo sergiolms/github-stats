@@ -1,5 +1,5 @@
 export const BuildDetailTpl = (title, content, isOpen = false) => `
-    <details class="group border-s-4 border-green-500 bg-gray-50 p-6 [&_summary::-webkit-details-marker]:hidden" ${isOpen ? 'open' : ''}>
+    <details class="relative grow-0 shrink-1 rounded-sm basis-80 m-1 group border-s-4 border-green-500 bg-gray-50 p-6 [&_summary::-webkit-details-marker]:hidden" ${isOpen ? 'open' : ''}>
         <summary class="flex cursor-pointer items-center justify-between gap-1.5">
         <h2 class="text-lg font-medium text-gray-900">${title}</h2>
 
@@ -18,7 +18,20 @@ export const BuildDetailTpl = (title, content, isOpen = false) => `
             </svg>
         </span>
         </summary>
-
-        <p class="mt-4 leading-relaxed text-gray-700">${content}</p>
+        ${content}
     </details>
 `;
+
+export const BuildAssetListTpl = assets => {
+    const totalDownloads = assets.reduce( (acc, element) => acc + element.download_count, 0);
+    return `
+        <ul style="top: calc(100% - 1.5rem); left: -4px; width: calc(100% + 4px)" class="absolute z-10 rounded-b-md group border-s-4 border-green-500 bg-gray-50 p-6 pt-0">${
+        assets.map(element => {
+            const progress = Math.round((element.download_count/totalDownloads) * 100)
+            return `<li class="flex flex-row justify-between items-center mb-1">
+                <div style="background: #c4e4c2; background: linear-gradient(90deg, #c4e4c2 ${progress}%, #ffffff ${progress}%);" class="bg-white w-full p-1">${element.name}</div>
+                <div class="bg-blue-200 basis-10 flex-1 p-1 text-center">${element.download_count}</div>
+            </li>`;
+        }).join('')
+    }</ul>`;
+}

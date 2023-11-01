@@ -11,6 +11,9 @@
       .input-style {
         @apply rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6;
       }
+      details[open], details[open] > ul {
+        @apply shadow-lg
+      }
     </style>
 </head>
 <body class="h-full">
@@ -75,11 +78,12 @@
             </div>
           </form>
         </div>
-        <div class="my-2 mx-auto max-w-md">
-          <div class="space-y-2" id="error"></div>
-          <div class="space-y-2" id="allTime"></div>
-          <div class="space-y-2" id="releases"></div>
+        <div class="my-2 mx-auto max-w-lg">
+          <div class="my-2" id="error"></div>
+          <div class="my-2" id="allTime"></div>
+          <div class="my-2" id="lastRelease"></div>
         </div>
+        <div class="my-2 flex flex-row flex-wrap items-start content-start justify-evenly" id="releases"></div>
       </div>
     </main>
   </div>
